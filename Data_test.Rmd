@@ -1,18 +1,24 @@
 ---
-title: "R Notebook"
+title: "GLORIA second stage_Diversity and niche"
 output: html_notebook
 ---
-so what
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+## 前述
+這是GLORIA第二階段發表的paper試驗
+主軸在更細緻的討論樣區的物種多樣性在不同時期的變化以及消失、出現的物種特性。
+假說：
+1. 在各山峰細緻的生物多樣性表現出怎樣的格局?是否跟溫度或其他環境因子有關?
+2. 在第一篇報告中，我們發現有溫度上升的事實。那增加的物種與覆蓋度擴大的物種是否與溫度上升有關?那消失的物種呢?
+## 研究目的
+1. 討論六座山峰中各方位樣區alpha多樣性與Beta多樣性
+2. 六座山峰的多樣性變化趨勢與氣候變化趨勢
+3. 討論消失與出現物種的氣候區位與生活型
+4. 植群氣候區位組成是否反映了氣候變化型態
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+## 分析測試
+### 基礎資料載入
 
 ```{r}
-plot(cars)
+library(data.table)
+setwd('E:/Git_R_work/GLORIA_SPECIES_NICH')
+r_sp <-fread('~/') 
 ```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
