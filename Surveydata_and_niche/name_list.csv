@@ -1,0 +1,92 @@
+Order,taxonID,family,familyVernacularName,scientificName,vernacularName,isEndemic,iucnCategory,source,code,,GBIF_name,GBIF_code
+1,6998,Lycopodiaceae,石松科,Dendrolycopodium juniperoideum (Sw.) A. Haines,玉柏,0,LC,原生,SP1,Dendrolycopodium juniperoideum (Sw.) A. Haines,Dendrolycopodium juniperoideum,26
+2,6999,Lycopodiaceae,石松科,Diphasiastrum multispicatum (J.H. Wilce) Holub,地刷子,0,LC,原生,SP2,Diphasiastrum multispicatum (J.H. Wilce) Holub,Diphasiastrum multispicatum,29
+3,7000,Lycopodiaceae,石松科,Diphasiastrum veitchii (Christ) Holub,玉山石松,0,LC,原生,SP3,Diphasiastrum veitchii (Christ) Holub,Diphasiastrum veitchii,30
+4,7001,Lycopodiaceae,石松科,Diphasiastrum yueshanense (C. M. Kuo) Holub,玉山地刷子,0,DD,原生,SP4,Diphasiastrum yueshanense (C. M. Kuo) Holub,Diphasiastrum yueshanense,31
+5,7002,Lycopodiaceae,石松科,Huperzia appressa (Desv.) ?. L?ve & D. L?ve,小杉葉石松,0,VU,原生,SP5,Huperzia appressa (Desv.) ?. L?ve & D. L?ve,Huperzia selago,49
+6,7494,Lycopodiaceae,石松科,Lycopodium clavatum L.,石松,0,LC,原生,SP6,Lycopodium clavatum L.,Lycopodium clavatum,57
+7,7453,Athyriaceae,蹄蓋蕨科,Athyrium oppositipinnum Hayata var. pubescens (Tagawa) Tagawa,逆羽蹄蓋蕨,0,LC,原生,SP7,Athyrium oppositipinnum Hayata var. pubescens (Tagawa) Tagawa,Athyrium reflexipinnum,10
+8,6811,Dryopteridaceae,鱗毛蕨科,Dryopteris alpestris Tagawa,腺鱗毛蕨,0,LC,原生,SP8,Dryopteris alpestris Tagawa,Dryopteris alpestris,32
+9,6824,Dryopteridaceae,鱗毛蕨科,Dryopteris expansa (C. Presl) Fraser-Jenk. & Jermy,闊葉鱗毛蕨,0,LC,原生,SP9,Dryopteris expansa (C. Presl) Fraser-Jenk. & Jermy,Dryopteris expansa,33
+10,7138,Polypodiaceae,水龍骨科,Selliguea quasidivaricata (Hayata) H. Ohashi & K. Ohashi,玉山茀蕨,0,LC,原生,SP10,Selliguea quasidivaricata (Hayata) H. Ohashi & K. Ohashi,Selliguea quasidivaricata,79
+11,738,Cupressaceae,柏科,Juniperus formosana Hayata var. formosana,刺柏,0,LC,原生,SP11,Juniperus formosana Hayata var. formosana,Juniperus formosana formosana,52
+12,739,Cupressaceae,柏科,Juniperus squamata Lamb.,香青,0,LC,原生,SP12,Juniperus squamata Lamb.,Juniperus squamata,53
+13,717,Pinaceae,松科,Abies kawakamii (Hayata) T. It?,臺灣冷杉,1,LC,原生,SP13,Abies kawakamii (Hayata) T. It?,Abies kawakamii,1
+14,720,Pinaceae,松科,Pinus armandii var. mastersiana (Hayata) Hayata,臺灣華山松,1,LC,原生,SP14,Pinus armandii var. mastersiana (Hayata) Hayata,Pinus armandii mastersiana,65
+15,724,Pinaceae,松科,Pinus taiwanensis Hayata,臺灣二葉松,1,LC,原生,SP15,Pinus taiwanensis Hayata,Pinus taiwanensis,66
+16,5115,Asparagaceae,天門冬科,Maianthemum formosanum (Hayata) La Frankie,臺灣鹿藥,0,LC,原生,SP16,Maianthemum formosanum (Hayata) La Frankie,Maianthemum formosanum,58
+17,3992,Cyperaceae,莎草科,Carex brachyanthera Ohwi,垂穗薹,1,LC,原生,SP17,Carex brachyanthera Ohwi,Carex brachyanthera,16
+18,3993,Cyperaceae,莎草科,Carex breviculmis R. Br.,短莖宿柱薹,0,LC,原生,SP18,Carex breviculmis R. Br.,Carex breviculmis,17
+19,4000,Cyperaceae,莎草科,Carex chrysolepis Franch. & Sav.,黃花薹,0,LC,原生,SP19,Carex chrysolepis Franch. & Sav.,Carex chrysolepis,18
+20,4005,Cyperaceae,莎草科,Carex filicina Nees,紅鞘薹,0,LC,原生,SP20,Carex filicina Nees,Carex filicina,19
+21,4026,Cyperaceae,莎草科,Carex orthostemon Hayata,直蕊宿柱薹,1,LC,原生,SP21,Carex orthostemon Hayata,Carex orthostemon,20
+22,4027,Cyperaceae,莎草科,Carex oxyandra Kudo,南投薹,0,LC,原生,SP22,Carex oxyandra Kudo,Carex oxyandra,21
+23,4044,Cyperaceae,莎草科,Carex tristachya var. pocilliformis (Boott) K?k.,抱鱗宿柱薹,0,LC,原生,SP23,Carex tristachya var. pocilliformis (Boott) K?k.,Carex tristachya pocilliformis,22
+24,4166,Cyperaceae,莎草科,Trichophorum subcapitatum (Thwaites & Hook.) D.A. Simpson,玉山針藺,0,LC,原生,SP24,Trichophorum subcapitatum (Thwaites & Hook.) D.A. Simpson,Trichophorum subcapitatum,86
+25,3941,Juncaceae,燈心草科,Luzula effusa Buchenau,中國地楊梅,0,LC,原生,SP25,Luzula effusa Buchenau,Luzula effusa,55
+26,3944,Juncaceae,燈心草科,Luzula taiwaniana Satake,臺灣地楊梅,1,LC,原生,SP26,Luzula taiwaniana Satake,Luzula taiwaniana,56
+27,3859,Melanthiaceae,黑葯花科,Veratrum formosanum Loes.,臺灣藜蘆,1,LC,原生,SP27,Veratrum formosanum Loes.,Veratrum formosanum,88
+28,4662,Orchidaceae,蘭科,Amitostigma alpestre Fukuy.,南湖雛蘭,1,LC,原生,SP28,Amitostigma alpestre Fukuy.,Amitostigma alpestre,4
+29,4990,Orchidaceae,蘭科,Platanthera brevicalcarata Hayata,短距粉蝶蘭,1,LC,原生,SP29,Platanthera brevicalcarata Hayata,Platanthera brevicalcarata,67
+30,4172,Poaceae,禾本科,Agrostis infirma Buse var. infirma,玉山翦股穎,0,LC,原生,SP30,Agrostis infirma Buse var. infirma,Agrostis infirma,2
+31,4232,Poaceae,禾本科,Brachypodium kawakamii Hayata,川上短柄草,1,LC,原生,SP31,Brachypodium kawakamii Hayata,Brachypodium kawakamii,14
+32,4281,Poaceae,禾本科,Deschampsia flexuosa (L.) Trin.,曲芒髮草,0,LC,原生,SP32,Deschampsia flexuosa (L.) Trin.,Deschampsia flexuosa,27
+33,4285,Poaceae,禾本科,Deyeuxia suizanensis (Hayata) Ohwi,水山野青茅,1,NT,原生,SP33,Deyeuxia suizanensis (Hayata) Ohwi,Calamagrostis filifolia,15
+34,4167,Poaceae,禾本科,Elymus formosanus (Honda) ?. L?ve,臺灣披鹼草,1,LC,原生,SP34,Elymus formosanus (Honda) ?. L?ve,Elymus formosanus,34
+35,3554,Poaceae,禾本科,Festuca japonica Makino,日本羊茅,0,EN,原生,SP35,Festuca japonica Makino,Festuca japonica,36
+36,4352,Poaceae,禾本科,Festuca ovina L.,羊茅,0,LC,原生,SP36,Festuca ovina L.,Festuca ovina,37
+37,4355,Poaceae,禾本科,Festuca rubra L.,紫羊茅,0,LC,原生,SP37,Festuca rubra L.,Festuca rubra,38
+38,4360,Poaceae,禾本科,Helictotrichon abietetorum (Ohwi) Ohwi,冷杉異燕麥,1,LC,原生,SP38,Helictotrichon abietetorum (Ohwi) Ohwi,Helictotrichon abietetorum,47
+39,4416,Poaceae,禾本科,Miscanthus sinensis Andersson,芒,0,LC,原生,SP39,Miscanthus sinensis Andersson,Miscanthus sinensis,59
+40,4468,Poaceae,禾本科,Phleum alpinum L.,高山梯牧草,0,LC,原生,SP40,Phleum alpinum L.,Phleum alpinum,62
+41,4541,Poaceae,禾本科,Trisetum spicatum var. formosanum (Honda) Ohwi,臺灣三毛草,1,LC,原生,SP41,Trisetum spicatum var. formosanum (Honda) Ohwi,Trisetum spicatum var. formosanum,87
+42,4545,Poaceae,禾本科,Yushania niitakayamensis (Hayata) Keng f.,玉山箭竹,0,LC,原生,SP42,Yushania niitakayamensis (Hayata) Keng f.,Yushania niitakayamensis,91
+43,2573,Araliaceae,五加科,Hydrocotyle setulosa Hayata,阿里山天胡荽,1,LC,原生,SP43,Hydrocotyle setulosa Hayata,Hydrocotyle setulosa,50
+44,3484,Asteraceae,菊科,Ainsliaea latifolia subsp. henryi (Diels) H. Koyama,臺灣鬼督郵,0,LC,原生,SP44,Ainsliaea latifolia subsp. henryi (Diels) H. Koyama,Ainsliaea latifolia henryi,3
+45,3492,Asteraceae,菊科,Anaphalis morrisonicola Hayata,玉山抱莖籟簫,0,LC,原生,SP45,Anaphalis morrisonicola Hayata,Anaphalis morrisonicola,5
+46,3493,Asteraceae,菊科,Anaphalis nepalensis (Spreng.) Hand.-Mazz.,尼泊爾籟簫,0,LC,原生,SP46,Anaphalis nepalensis (Spreng.) Hand.-Mazz.,Anaphalis nepalensis,6
+47,3502,Asteraceae,菊科,Artemisia kawakamii Hayata,山艾,1,LC,原生,SP47,Artemisia kawakamii Hayata,Artemisia kawakamii,9
+48,3561,Asteraceae,菊科,Cirsium arisanense Kitam.,阿里山薊,1,LC,原生,SP48,Cirsium arisanense Kitam.,Cirsium arisanense,23
+49,3567,Asteraceae,菊科,Cirsium kawakamii Hayata,玉山薊,1,LC,原生,SP49,Cirsium kawakamii Hayata,Cirsium kawakamii,24
+50,3632,Asteraceae,菊科,Gnaphalium involucratum var. simplex DC.,細葉鼠麴草,0,LC,原生,SP50,Gnaphalium involucratum var. simplex DC.,Gnaphalium involucratum simplex,46
+51,3650,Asteraceae,菊科,Hieracium morii Hayata,森氏山柳菊,1,LC,原生,SP51,Hieracium morii Hayata,Hieracium morii,48
+52,3671,Asteraceae,菊科,Leontopodium microphyllum Hayata,玉山薄雪草,1,LC,原生,SP52,Leontopodium microphyllum Hayata,Leontopodium microphyllum,54
+53,3680,Asteraceae,菊科,Myriactis humilis Merr.,矮菊,0,LC,原生,SP53,Myriactis humilis Merr.,Myriactis humilis,60
+54,3691,Asteraceae,菊科,Picris hieracioides subsp. morrisonensis (Hayata) Kitam.,玉山毛蓮菜,1,LC,原生,SP54,Picris hieracioides subsp. morrisonensis (Hayata) Kitam.,Picris hieracioides subsp. morrisonensis (Hayata),63
+55,3711,Asteraceae,菊科,Senecio morrisonensis Hayata,玉山黃菀,1,LC,原生,SP55,Senecio morrisonensis Hayata,Senecio morrisonensis,80
+56,3720,Asteraceae,菊科,Solidago virgaurea var. leiocarpa Miq.,一枝黃花,0,LC,原生,SP56,Solidago virgaurea var. leiocarpa Miq.,Solidago virgaurea leiocarpa,81
+57,1217,Berberidaceae,小檗科,Berberis kawakamii Hayata,臺灣小檗,1,NT,原生,SP57,Berberis kawakamii Hayata,Berberis kawakamii,11
+58,1219,Berberidaceae,小檗科,Berberis morrisonensis Hayata,玉山小檗,1,LC,原生,SP58,Berberis morrisonensis Hayata,Berberis morrisonensis,12
+59,1408,Brassicaceae,十字花科,Arabidopsis lyrata (L.) O'Kane & Al-Shehbaz subsp. kamchatica (Fisch. ex DC.) Hult?n,玉山筷子芥,0,LC,原生,SP59,Arabidopsis lyrata (L.) O'Kane & Al-Shehbaz subsp. kamchatica (Fisch. ex DC.) Hult?n,Arabidopsis lyrata kamchatica,7
+60,3451,Caprifoliaceae,忍冬科,Scabiosa lacerifolia Hayata,玉山山蘿蔔,1,LC,原生,SP60,Scabiosa lacerifolia Hayata,Scabiosa lacerifolia,77
+61,1065,Caryophyllaceae,石竹科,Arenaria takasagomontana (Masam.) S.S. Ying,高山無心菜,1,LC,原生,SP61,Arenaria takasagomontana (Masam.) S.S. Ying,Arenaria takasagomontana,8
+62,1075,Caryophyllaceae,石竹科,Dianthus pygmaeus Hayata,玉山石竹,1,VU,原生,SP62,Dianthus pygmaeus Hayata,Dianthus pygmaeus,28
+63,1470,Crassulaceae,景天科,Sedum morrisonense Hayata,玉山佛甲草,1,LC,原生,SP63,Sedum morrisonense Hayata,Sedum morrisonense,78
+64,2610,Ericaceae,杜鵑花科,Gaultheria itoana Hayata,高山白珠樹,0,LC,原生,SP64,Gaultheria itoana Hayata,Gaultheria itoana,39
+65,2613,Ericaceae,杜鵑花科,Pieris taiwanensis Hayata,臺灣馬醉木,0,LC,原生,SP65,Pieris taiwanensis Hayata,Pieris taiwanensis,64
+66,2629,Ericaceae,杜鵑花科,Rhododendron pseudochrysanthum Hayata,玉山杜鵑,1,LC,原生,SP66,Rhododendron pseudochrysanthum Hayata,Rhododendron pseudochrysanthum,71
+67,2630,Ericaceae,杜鵑花科,Rhododendron rubropilosum Hayata var. rubropilosum,紅毛杜鵑,1,LC,原生,SP67,Rhododendron rubropilosum Hayata var. rubropilosum,Rhododendron rubropilosum,72
+68,2784,Gentianaceae,龍膽科,Gentiana arisanensis Hayata,阿里山龍膽,1,LC,原生,SP68,Gentiana arisanensis Hayata,Gentiana arisanensis,40
+69,2786,Gentianaceae,龍膽科,Gentiana davidii var. formosana (Hayata) T.N. Ho,臺灣龍膽,0,LC,原生,SP69,Gentiana davidii var. formosana (Hayata) T.N. Ho,Gentiana davidii var. formosana,41
+70,2787,Gentianaceae,龍膽科,Gentiana flavomaculata Hayata var. flavomaculata,黃斑龍膽,1,LC,原生,SP70,Gentiana flavomaculata Hayata var. flavomaculata,Gentiana flavomaculata,42
+71,2794,Gentianaceae,龍膽科,Gentiana scabrida Hayata,玉山龍膽,1,LC,原生,SP71,Gentiana scabrida Hayata,Gentiana scabrida var. punctulata,43
+72,2795,Gentianaceae,龍膽科,Gentiana scabrida var. punctulata S.S. Ying,黑斑龍膽,1,LC,原生,SP72,Gentiana scabrida var. punctulata S.S. Ying,Gentiana scabrida,44
+73,2805,Gentianaceae,龍膽科,Swertia macrosperma (C.B. Clarke) C.B. Clarke,大籽當藥,0,LC,原生,SP73,Swertia macrosperma (C.B. Clarke) C.B. Clarke,Swertia macrosperma,85
+74,1901,Geraniaceae,牻牛兒苗科,Geranium hayatanum Ohwi,單花牻牛兒苗,1,LC,原生,SP74,Geranium hayatanum Ohwi,Geranium hayatanum,45
+75,1498,Grossulariaceae,茶藨子科,Ribes formosanum Hayata,臺灣茶藨子,1,LC,原生,SP75,Ribes formosanum Hayata,Ribes formosanum,73
+76,1369,Hypericaceae,金絲桃科,Hypericum nagasawae Hayata,玉山金絲桃,1,LC,原生,SP76,Hypericum nagasawae Hayata,Hypericum nagasawae,51
+77,3157,Lamiaceae,唇形科,Origanum vulgare L.,野薄荷,0,LC,原生,SP77,Origanum vulgare L.,Origanum vulgare,61
+78,3400,Orobanchaceae,列當科,Boschniakia himalaica Hook. f. & Thomson,丁座草,0,LC,原生,SP78,Boschniakia himalaica Hook. f. & Thomson,Boschniakia himalaica,13
+79,3255,Orobanchaceae,列當科,Euphrasia transmorrisonensis Hayata var. transmorrisonensis,玉山小米草,1,LC,原生,SP79,Euphrasia transmorrisonensis Hayata var. transmorrisonensis,Euphrasia transmorrisonensis,35
+80,3314,Plantaginaceae,車前科,Veronica morrisonicola Hayata,玉山水苦藚,1,LC,原生,SP80,Veronica morrisonicola Hayata,Veronica morrisonicola,89
+81,2079,Polygalaceae,遠志科,Polygala japonica Houtt.,瓜子金,0,LC,原生,SP81,Polygala japonica Houtt.,Polygala japonica,68
+82,1177,Ranunculaceae,毛茛科,Clematis montana Buch.-Ham. ex DC.,繡球藤,0,LC,原生,SP82,Clematis montana Buch.-Ham. ex DC.,Clematis montana,25
+83,1536,Rosaceae,薔薇科,Potentilla leuconota D. Don,玉山金梅,0,LC,原生,SP83,Potentilla leuconota D. Don,Potentilla leuconota var. morrisonicola,69
+84,1539,Rosaceae,薔薇科,Potentilla tugitakensis Masam.,雪山翻白草,1,EN,原生,SP84,Potentilla tugitakensis Masam.,Potentilla tugitakensis,70
+85,1578,Rosaceae,薔薇科,Rosa transmorrisonensis Hayata,高山薔薇,0,LC,原生,SP85,Rosa transmorrisonensis Hayata,Rosa transmorrisonensis,74
+86,1610,Rosaceae,薔薇科,Rubus rolfei S. Vidal,高山懸鉤子,0,NT,原生,SP86,Rubus rolfei S. Vidal,Rubus rolfei,75
+87,1624,Rosaceae,薔薇科,Spiraea formosana Hayata,臺灣繡線菊,1,LC,原生,SP87,Spiraea formosana Hayata,Spiraea formosana,82
+88,1625,Rosaceae,薔薇科,Spiraea hayatana H.L. Li,假繡線菊,1,LC,原生,SP88,Spiraea hayatana H.L. Li,Spiraea hayatana,83
+89,1626,Rosaceae,薔薇科,Spiraea morrisonicola Hayata,玉山繡線菊,1,LC,原生,SP89,Spiraea morrisonicola Hayata,Spiraea morrisonicola,84
+90,754,Salicaceae,楊柳科,Salix taiwanalpina var. takasagoalpina (Koidz.) S.S. Ying,高山柳,1,LC,原生,SP90,Salix taiwanalpina var. takasagoalpina (Koidz.) S.S. Ying,Salix morrisonicola var. takasagoalpina,76
+91,2335,Violaceae,菫菜科,Viola adenothrix Hayata var. adenothrix,喜岩菫菜,0,LC,原生,SP91,Viola adenothrix Hayata var. adenothrix,Viola adenothrix,90
