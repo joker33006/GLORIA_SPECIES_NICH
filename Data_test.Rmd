@@ -21,6 +21,7 @@ output: html_notebook
 library(data.table) #for data loading and 
 library(vegan) # for the vegetation analysis(which like diversity and multiple variable analysis)
 library(ggplot2)
+library(ggvegan)
 ```
 
 ### 基礎資料載入
@@ -63,6 +64,8 @@ r_avg <- cbind(r_wth[,.(temp_all=mean(temp)),by=.(region,summit,direction)],
             r_wth[w_period=='P3',.(temp_p3=mean(temp)),by=.(region,summit,direction)][,temp_p3])
 
 setnames(r_avg,c('V2','V3'),c('t_p2','t_p3'))
+avg <- r_avg[,.(temp=mean(temp_all)),by=.(summit,direction)]
+avg[order(temp)]
 ```
 div:各山峰樣區的植物多樣性資料(N, shannon)
 sp_p1:各山峰樣區的樣區X物種矩陣(數值為相對值)
@@ -70,9 +73,62 @@ r_avg:各山峰不同方位的平均溫、與時期均溫，P2(DAS:2008-2012,SYU
 Step 3. 初步繪圖
 ```{r echo=FALSE}
 div_w <- div[r_avg,on=.(summit=summit,dir=direction)]
-ggplot(data=div_w,aes(x=temp_all,y=N,color=alt))+
+ggplot(data=div_w,aes(x=summit,y=N,color=alt))+
+  geom_point()+
+  theme_bw()+
+  facet_grid(period~dir)+
+  scale_x_discrete(limits=c("TSW","SEN","DSH","YAT","JNJ",'SUN'))
+ggsave('plot/diversity_NXP.jpeg',width = 9,height = 6,dpi = 300)
+
+ggplot(data=div_w,aes(x=summit,y=H,color=alt))+
+  geom_point()+
+  theme_bw()+
+  facet_grid(period~dir)+
+  scale_x_discrete(limits=c("TSW","SEN","DSH","YAT","JNJ",'SUN'))
+ggsave('plot/diversity_HXP.jpeg',width = 9,height = 6,dpi = 300)
+
+
+ggplot(data=div_w[alt=='10'],aes(x=temp_all,y=N,color=summit))+
+  geom_point()+
+  theme_bw()+
+  facet_grid(period~.)+
+  ylim(0,50)+
+  smooth_line(y~x)
+ggsave('plot/diversity_NXTXP10m.jpeg',width = 8,height = 6,dpi = 300)
+```
+Step 4. 多變量分析
+嘗試使用ca檢視植群組成
+```{r}
+cca1 <- cca(sp_p1[,4:ncol(sp_p1)])
+cca_r <- cbind(sp_p1[,1:3],cca1$CA$u)
+cca_r[,summit:=gsub('-[A-Z].*',"",pcode)]
+cca_r[,summit_per:=paste0(summit,"_",period)]
+ggplot(cca_r,aes(x=CA1,y=CA2,color=summit))+
   geom_point()+
   facet_grid(period~.)
+
 ```
+嘗試使用pca檢視植群組成
+```{r}
+rda1 <- rda(sp_p1[,4:ncol(sp_p1)])
 
+rda_r <- cbind(sp_p1[,1:3],rda1$CA$u)
+rda_r[,summit:=gsub('-[A-Z].*',"",pcode)][,dir_alt:=gsub('^[A-Z]{1,3}-',"",pcode)]
+rda_r[,summit_per:=paste0(summit,"_",period)]
+ggplot(rda_r,aes(x=PC1,y=PC2,color=summit,label = pcode))+
+  geom_point()+
+  geom_text(check_overlap = TRUE)
 
+sum(rda1$CA$eig[1:3])/rda1$tot.chi
+```
+嘗試使用cca檢視植群組成
+```{r}
+cca1 <- cca(sp_p1[,4:ncol(sp_p1)])
+cca_r <- cbind(sp_p1[,1:3],cca1$CA$u)
+cca_r[,summit:=gsub('-[A-Z].*',"",pcode)]
+cca_r[,summit_per:=paste0(summit,"_",period)]
+ggplot(cca_r,aes(x=CA1,y=CA2,color=summit))+
+  geom_point()+
+  facet_grid(period~.)
+
+```
