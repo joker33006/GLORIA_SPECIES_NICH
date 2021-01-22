@@ -1,0 +1,92 @@
+"","scientificname","code","1","2","3","4","5"
+"1","Abies kawakamii",1,11.7,30.3,43.8,75.4,229.8
+"2","Agrostis infirma",2,0,24,73.4,132.975,256.2
+"3","Ainsliaea latifolia henryi",3,14.2,43.6,52.7,80.1,109.5
+"4","Amitostigma alpestre",4,14.7,23.8,27.4,36.5,84
+"5","Anaphalis morrisonicola",5,11.7,36,60.8,86.7,222.1
+"6","Anaphalis nepalensis",6,0,15.2,43.1,85.45,241.1
+"7","Arabidopsis lyrata kamchatica",7,0,18.1,29.1,55.975,229.8
+"8","Arenaria takasagomontana",8,26.2,30.675,37,79.4,109.6
+"9","Artemisia kawakamii",9,9.4,21.4,27.8,47.6,194.5
+"10","Athyrium reflexipinnum",10,10.7,21.1,32.8,73.4,238.8
+"11","Berberis kawakamii",11,11.7,41.65,51.6,78.425,233.9
+"12","Berberis morrisonensis",12,9.4,15.8,23,33.3,231.2
+"13","Boschniakia himalaica",13,0,41.5,52.6,89.6,199.5
+"14","Brachypodium kawakamii",14,11.7,23.15,35.85,43.3,206
+"15","Calamagrostis filifolia",15,0,42.4,67.7,111.6,242.5
+"16","Carex brachyanthera",16,0,0.2,158.1,220.5,220.5
+"17","Carex breviculmis",17,2,65.3,96.9,114.5,230
+"18","Carex chrysolepis",18,11.7,15.8,25.6,65.7,225.5
+"19","Carex filicina",19,0,72.2,109.9,159,269.8
+"20","Carex orthostemon",20,43.7,79.5,94.1,109.6,199.2
+"21","Carex oxyandra",21,0,42.6,66.35,86.7,152.9
+"22","Carex tristachya pocilliformis",22,11.7,111.45,131.9,148.75,227.9
+"23","Cirsium arisanense",23,10.7,27.4,50.8,70.6,168.9
+"24","Cirsium kawakamii",24,13.8,15.8,21.1,37.55,200.5
+"25","Clematis montana",25,0,52.6,87.95,118.5,231.2
+"26","Dendrolycopodium juniperoideum",26,6.4,26.075,32.85,40.75,99.6
+"27","Deschampsia flexuosa",27,13.3,61.6,68.2,69.6,85.1
+"28","Dianthus pygmaeus",28,11.7,21.95,47.6,82.525,231.2
+"29","Diphasiastrum multispicatum",29,0,61.25,99,137.4,241.2
+"30","Diphasiastrum veitchii",30,10,26.2,40.4,89.6,205.7
+"31","Diphasiastrum yueshanense",31,26.2,37.45,47.6,86.5,99.8
+"32","Dryopteris alpestris",32,11.7,24.65,32.3,49.9,176.3
+"33","Dryopteris expansa",33,3.7,35.4,44.6,51.7,113.6
+"34","Elymus formosanus",34,9.4,15.8,27.8,75.4,209.7
+"35","Euphrasia transmorrisonensis",35,10.7,29.075,49,71.25,218.3
+"36","Festuca japonica",36,9.4,61.3,68.1,102.6,143.1
+"37","Festuca ovina",37,2.9,44.5,47.6,51.8,168.6
+"38","Festuca rubra",38,4.1,46.275,51.7,54,116.8
+"39","Gaultheria itoana",39,11.7,32.3,59.7,82.65,214.2
+"40","Gentiana arisanensis",40,9.4,21.325,29.9,38.1,207.4
+"41","Gentiana davidii var. formosana",41,11.7,47.6,77.65,98.6,212.6
+"42","Gentiana flavomaculata",42,11.7,54.6,73.7,90,221.4
+"43","Gentiana scabrida",44,11.7,26.2,34.55,58.65,222.1
+"44","Gentiana scabrida var. punctulata",43,13.5,26.3,30.7,35.9,74.8
+"45","Geranium hayatanum",45,9.4,15.8,24,35.9,218.3
+"46","Gnaphalium involucratum simplex",46,22.7,50.275,60.1,81.925,202.1
+"47","Helictotrichon abietetorum",47,11.7,14.7,24,37,215
+"48","Hieracium morii",48,11.7,22.85,27.7,38.975,173.8
+"49","Huperzia selago",49,0,20.3,37.9,45.9,126.4
+"50","Hydrocotyle setulosa",50,13.8,74.125,83.05,101.9,208.6
+"51","Hypericum nagasawae",51,11.7,32.1,46.8,55.7,218.3
+"52","Juniperus formosana formosana",52,19.4,36.8,89.4,126.5,169.7
+"53","Juniperus squamata",53,0,32.3,56,89.4,226.9
+"54","Leontopodium microphyllum",54,9.4,14.7,23.6,32.4,229.8
+"55","Luzula effusa",55,9.4,46.6,89.6,121,189.1
+"56","Luzula taiwaniana",56,9.4,15.8,22.55,36.625,229.8
+"57","Lycopodium clavatum",57,6.1,39.5,45.5,53.9,196.5
+"58","Maianthemum formosanum",58,11.7,24,43.3,93.2,226.9
+"59","Miscanthus sinensis",59,23.8,67.4,83.8,112.6,243.6
+"60","Myriactis humilis",60,0.5,47.2,73.9,94.1,262
+"61","Origanum vulgare",61,9,59.7,68.1,78.825,249
+"62","Phleum alpinum",62,0,13.5,19.6,26.1,95.9
+"63","Picris hieracioides subsp. morrisonensis (Hayata)",63,13.8,15.8,29.9,60.3,130.2
+"64","Pieris taiwanensis",64,11.7,65.7,90.9,161.1,241.6
+"65","Pinus armandii mastersiana",65,11.7,55.4,73.9,92.2,229.8
+"66","Pinus taiwanensis",66,22.4,60.8,116,155.8,231.2
+"67","Platanthera brevicalcarata",67,9.4,21.1,29.3,49.2,181.2
+"68","Polygala japonica",68,22.9,97.3,118.7,140,272.1
+"69","Potentilla leuconota var. morrisonicola",69,11.7,23,27.8,49.9,229.8
+"70","Potentilla tugitakensis",70,13.8,14.8,18.7,23,218.2
+"71","Rhododendron pseudochrysanthum",71,9.4,24,43.3,73.4,234.3
+"72","Rhododendron rubropilosum",72,11.7,43.3,65.8,92.25,217.1
+"73","Ribes formosanum",73,11.7,29.3,49.6,65.5,218.3
+"74","Rosa transmorrisonensis",74,13.8,32.1,47.6,72.225,231.2
+"75","Rubus rolfei",75,11.7,35.9,61.4,87.825,210.5
+"76","Salix morrisonicola var. takasagoalpina",76,11.7,17.1,26.8,62,127.9
+"77","Scabiosa lacerifolia",77,9.4,14.7,19.15,26.65,231.9
+"78","Sedum morrisonense",78,9.4,17.1,26.4,49.975,218.3
+"79","Selliguea quasidivaricata",79,22.1,43.6,47.6,52.9,145.6
+"80","Senecio morrisonensis",80,11.7,43.6,75.3,93.2,233.9
+"81","Solidago virgaurea leiocarpa",81,16.5,41.9,53.2,63.45,142.5
+"82","Spiraea formosana",82,11.7,37.225,62.5,83.5,229.8
+"83","Spiraea hayatana",83,13.8,32.4,43.3,73.9,161.2
+"84","Spiraea morrisonicola",84,11.7,18.5,25.15,43.3,210.5
+"85","Swertia macrosperma",85,11.7,43.225,80.7,118.3,210.5
+"86","Trichophorum subcapitatum",86,0,62.4,112.3,169.4,261.3
+"87","Trisetum spicatum var. formosanum",87,9.4,14.8,21.1,29,150.5
+"88","Veratrum formosanum",88,13.8,28.9,33.4,45.975,210.5
+"89","Veronica morrisonicola",89,9.4,21.1,30.7,51.3,231.2
+"90","Viola adenothrix",90,9.4,32.4,70.8,100,207.4
+"91","Yushania niitakayamensis",91,11.7,30,59.8,93.65,238.3
