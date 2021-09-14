@@ -1,0 +1,223 @@
+---
+title: "GLORIA second stage_Diversity and niche"
+output: html_notebook
+---
+## 前述
+這是GLORIA第二階段發表的paper試驗
+主軸在更細緻的討論樣區的物種多樣性在不同時期的變化以及消失、出現的物種特性。
+研究問題：
+1. 在各山峰細緻的生物多樣性表現出怎樣的格局?是否跟溫度或其他環境因子有關?
+2. 在第一篇報告中，我們發現有溫度上升的事實。那增加的物種與覆蓋度擴大的物種是否與溫度上升有關?那消失的物種呢?
+
+## 分析測試
+### package 載入
+分析使用到的package集中處
+```{r echo=FALSE}
+library(data.table) #for data loading and 
+library(vegan) # for the vegetation analysis(which like diversity and multiple variable analysis)
+library(ggplot2)
+library(ggpubr)
+library(agricolae)#for HSD test
+library(rayshader) # for 3D plot function 
+```
+### 基礎資料載入
+載入三項基礎資料，分別為2008-2020的section plot 調查資料、section plot 的環境資料以及日均溫與降雨量資料
+```{r echo=FALSE}
+r_sp_sec <-fread('Surveydata_and_niche/2008_2020_DAS_SYU_p5p10_BBq.csv')
+r_sp_11 <- fread('Surveydata_and_niche/SYU_DAS_1X1_total.csv')
+###2008-2020,DAS and SYU, P5m P10m 
+r_env <- fread('Surveydata_and_niche/2008_2020_DAS_SYU_p5p10_plot_env.csv')# plot environment data table
+r_wth <- fread('Weather_data/temp_combin_daily.csv')#daily temperature and precipitation data
+```
+
+### 氣候與物種增關係
+**核心概念:時間** 
+在氣候變化的條件下，各山峰物種的區位組成是如何變化?覆蓋增減的物種屬於何種類型?
+Step 1. 基礎資料載入
+```{r}
+bio_nich <- fread('Surveydata_and_niche/bio_niche.csv')
+wi_nich <- fread('Surveydata_and_niche/WI_niche.csv')
+name_list <- fread("Surveydata_and_niche/name_list.csv")
+code_ref <- name_list[,.(code,GBIF_code)]
+nich <- bio_nich[wi_nich,on=.(code=code)]
+nich <- nich[code_ref,on=.(code=GBIF_code)]#將所有氣候區位資料結合
+nich[,i.V1:=NULL]
+setnames(x = r_sp_sec,old =c("Target region code","Summit code","方位","Sunnit area section","coverage"),new=c("region","Summit","dir","Summit_dir","cov"))
+r_data <- dcast(r_sp_sec,region+Summit+dir+Summit_dir+Name+code~Period,value.var = c('cov',"r_cov"),fun=sum)#r_data為不同時期之物種覆蓋度整理
+```
+資料說明
+r_data: 統整三個時期各山峰樣區p5m_p10m的植物覆蓋相對值與絕對值
+nich: 氣候區位bio_1(年均溫),bio_12(年降雨量),數字1-5為溫量指數,table中的code是GBIF下載之順序
+
+Step 2. 結合raw data與物種niche
+```{r}
+sec_r <- r_sp_sec[nich,on=.(code=i.code.1)] #計算各時期物種頻度用
+sec_r <- sec_r[!is.na(year)]#section樣區資料
+setnames(r_sp_11,c("%-cover"),c("cov"))
+x11_r <- r_sp_11[nich,on=.(code=i.code.1)]#1X1樣區資料
+```
+
+Step 3. 計算樣區的嗜熱指數與嗜濕指數
+分別計算1X1樣區的嗜熱指數以及section的嗜熱指數
+```{r}
+####section 
+sec_r[,r_heat:=cov*bio_1_3][,r_pre:=cov*bio_12_3]
+trend_ind <-sec_r[,.(heat_ind=sum(r_heat)/sum(cov),pre_ind=sum(r_pre)/sum(cov)),by=.(region,Summit,dir,Summit_dir,Period)]
+
+r_ind_sec <- trend_ind[,.(h_avg=mean(heat_ind),h_sd=sd(heat_ind),p_avg=mean(pre_ind),p_sd=sd(pre_ind)),by=.(region,Summit,Period)]
+######HSD分組
+aov_cls <- function(x){
+  c_r <- NULL
+  for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
+    t_aov <- aov(get(x)~Period,data=trend_ind[Summit==i])
+    tuk <- HSD.test(t_aov,'Period', alpha = 0.05)
+    cls <- as.data.table(cbind(data.table(summit=i,period=rownames(tuk$groups),tuk$group)))
+    c_r <- rbind(c_r,cls)
+    }
+  return(c_r)}
+###########
+r_sec_ind <- r_ind_sec[aov_cls('heat_ind'),on=.(Summit=summit,Period=period)]
+setnames(r_sec_ind,"groups","t_groups")
+r_sec_ind <- r_sec_ind[aov_cls('pre_ind'),on=.(Summit=summit,Period=period)]
+setnames(r_sec_ind,"groups","p_groups")
+
+#########繪圖
+w=0.8
+ggplot(r_sec_ind,aes(x=Summit,y=p_avg, fill=Period))+
+  geom_bar(stat="identity", position=position_dodge(),width = w)+
+  geom_errorbar(aes(ymin=p_avg-p_sd, ymax=p_avg+p_sd), 
+                position = position_dodge(width =w),width = 0.2)+
+  theme_classic2()+
+  geom_text(aes(label=p_groups, group=Period),
+            position=position_dodge(width=w),vjust=-3)+
+  scale_x_discrete(limits=c("SEN","YAT",'SUN',"TSW","DSH","JNJ"))+
+  scale_fill_brewer(palette = 'Set2',labels = c("2008-2009", "2013-2014", "2019-2020"))+
+  labs(x="Summit",y="Moist-philic index",fill="Monitoring cycle")+
+  ylim(c(0,2400))
+ggsave(paste0("plot/Thermo_id_",i,".jpeg"),width = 8,height = 6,dpi=600)
+
+
+```
+
+
+Step 4. 以山峰為主體做嗜熱與嗜濕指數分析
+```{r}
+n_ind_avg <- nich_ind[,.(h_ind=mean(heat_ind),h_ind_sd=sd(heat_ind),p_ind=mean(pre_ind),p_ind_sd=sd(pre_ind)),by=.(region,Summit,period)]
+
+aov_cls <- function(x){
+  c_r <- NULL
+  for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
+    t_aov <- aov(get(x)~period,data=nich_ind[Summit==i])
+    tuk <- HSD.test(t_aov,'period', alpha = 0.05)
+    cls <- as.data.table(cbind(data.table(summit=i,period=rownames(tuk$groups),tuk$group)))
+    c_r <- rbind(c_r,cls)
+    }
+  return(c_r)}
+
+n_ind_avg <- n_ind_avg[aov_cls('heat_ind'),on=.(Summit=summit,period=period)]  
+setnames(n_ind_avg,'groups','t_groups')
+n_ind_avg <- n_ind_avg[aov_cls('pre_ind'),on=.(Summit=summit,period=period)]
+setnames(n_ind_avg,'groups','p_groups')
+####plot 
+w=0.8
+ggplot(n_ind_avg,aes(x=Summit,y=h_ind, fill=period))+
+  geom_bar(stat="identity", position=position_dodge(),width = w)+
+  geom_errorbar(aes(ymin=h_ind-h_ind_sd, ymax=h_ind+h_ind_sd), 
+                position = position_dodge(width =w),width = 0.2)+
+  theme_classic2()+
+  geom_text(aes(label=t_groups, group=period),
+            position=position_dodge(width=w),vjust=-3)+
+  scale_x_discrete(limits=c("TSW","SEN","DSH","YAT","JNJ",'SUN'))+
+  scale_fill_brewer(palette = 'Set2')+
+  labs(x="Summit",y="Thermophilic index")+
+  ylim(c(0,14))
+ggsave("plot/Thermo_indexXSummit.jpeg",width=6,height=3,dpi=600)  
+
+ggplot(n_ind_avg,aes(x=Summit,y=p_ind, fill=period))+
+  geom_bar(stat="identity", position=position_dodge(),width = w)+
+  geom_errorbar(aes(ymin=p_ind-p_ind_sd, ymax=p_ind+p_ind_sd), 
+                position = position_dodge(width =w),width = 0.2)+
+  theme_classic2()+
+  geom_text(aes(label=p_groups, group=period),
+            position=position_dodge(width=w),vjust=-3)+
+  scale_x_discrete(limits=c("TSW","SEN","DSH","YAT","JNJ",'SUN'))+
+  scale_fill_brewer(palette = 'Set2')+
+  labs(x="Summit",y="Moist-philic index")+
+  ylim(c(0,2400))
+ggsave("plot/Moist_indexXSummit.jpeg",width=6,height=3,dpi=600) 
+
+```
+
+Step 5. 各方位嗜熱指數與溫度差異
+```{r}
+n_ind_t <- dcast(nich_ind,region+Summit+dir+Summit_dir~period,value.var = "heat_ind",fun=sum)
+n_ind_t[,p2_d:=P2-P1][,p3_d:=P3-P2]
+colnames(t_p)
+t_p_t <- dcast(t_p,summit+direction~w_period,value.var = 'temp',fun=sum)
+n_t <- n_ind_t[t_p_t,on=.(Summit=summit,dir=direction)]
+n_t[,alt:=gsub("^[A-Z]","",Summit_dir)]
+colnames(n_t)
+ggplot(n_t,aes(x=i.P3,y=p3_d,color=alt))+
+  geom_point()+
+  geom_smooth(method = lm)+
+  facet_grid(Summit~.)
+```
+
+Step 6. 增減物種之特性
+使用資料
+input：p5m,p10m樣區植物覆蓋絕對值、相對值以及區位特性
+name_list:植物名錄含Raunkiær's life form
+```{r}
+head(name_list)
+input <- input[name_list,on=.(code=code)]
+input[,d_cov_p2:=T_cover_P2-T_cover_P1][,d_cov_p3:=T_cover_P3-T_cover_P2]
+input <- input[!is.na(Summit)]
+summit_cover <- input[,.(T_c_p1=sum(T_cover_P1),
+                  T_c_p2=sum(T_cover_P2),
+                  T_c_p3=sum(T_cover_P3),
+                  d_cov_p2=sum(d_cov_p2),
+                  d_cov_p3=sum(d_cov_p3)),
+                  by=.(Summit,code,Name,bio_1_3,bio_12_3,Rk_t)]
+
+p2 <-rbind(summit_cover[d_cov_p2==0&(T_c_p1>0|T_c_p2>0),
+                        .(cls="Equal",dif=.N),
+                        by=.(Summit,Rk_t)],
+           summit_cover[d_cov_p2>0,.(cls="Increaing",dif=.N),
+                        by=.(Summit,Rk_t)],
+           summit_cover[d_cov_p2<0,.(cls="Decreaing",dif=.N),
+                        by=.(Summit,Rk_t)])
+p2[,cls:=factor(cls,levels = c("Increaing","Equal","Decreaing"))]
+ggplot(p2,aes(Rk_t,y=dif,fill=cls))+
+  geom_bar(stat='sum')+
+  facet_grid(.~Summit)+
+  labs(x="Species number",y="Raunkiær's life form")+
+  scale_fill_brewer(palette = 'Set2',name = "Class")
+
+ggsave('plot/P1_P2_cover_change_life_form.jpeg',width=9,height=4,dpi=600)
+p3 <-rbind(summit_cover[d_cov_p3==0&(T_c_p2>0|T_c_p3>0),
+                        .(cls="Equal",dif=.N),
+                        by=.(Summit,Rk_t)],
+           summit_cover[d_cov_p3>0,.(cls="Increaing",dif=.N),
+                        by=.(Summit,Rk_t)],
+           summit_cover[d_cov_p3<0,.(cls="Decreaing",dif=.N),
+                        by=.(Summit,Rk_t)])
+p3[,cls:=factor(cls,levels = c("Increaing","Equal","Decreaing"))]
+
+ggplot(p3,aes(Rk_t,y=dif,fill=cls))+
+  geom_bar(stat='sum')+
+  facet_grid(.~Summit)+
+  labs(x="Species number",y="Raunkiær's life form")+
+  scale_fill_brewer(palette = 'Set2',name = "Class")
+ggsave('plot/P2_P3_cover_change_life_form.jpeg',width=9,height=4,dpi=600)
+
+g_p2 <- ggplot(summit_cover,aes(x=bio_1_3/10,y=bio_12_3))+ 
+  stat_density_2d(aes(fill = stat(level)),
+                  geom = "polygon", 
+                  n = 100 ,
+                  bins = 10)+
+  facet_grid(.~Summit)
+plot_gg(g_p2, width = 8, height = 5, multicore = TRUE, scale = 250, 
+        zoom = 0.7, theta = 10, phi = 30, windowsize = c(800, 800))
+```
+
+
