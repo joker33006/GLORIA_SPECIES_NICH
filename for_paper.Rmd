@@ -18,7 +18,8 @@ library(vegan) # for the vegetation analysis(which like diversity and multiple v
 library(ggplot2)
 library(ggpubr)
 library(agricolae)#for HSD test
-library(rayshader) # for 3D plot function 
+library(tidyverse) #pipe
+library(rstatix) #for Repeated Measures ANOVA and post-hoc tests
 ```
 ### 基礎資料載入
 載入三項基礎資料，分別為2008-2020的section plot 調查資料、section plot 的環境資料以及日均溫與降雨量資料
@@ -28,6 +29,7 @@ r_sp_11 <- fread('Surveydata_and_niche/SYU_DAS_1X1_total.csv')
 ###2008-2020,DAS and SYU, P5m P10m 
 r_env <- fread('Surveydata_and_niche/2008_2020_DAS_SYU_p5p10_plot_env.csv')# plot environment data table
 r_wth <- fread('Weather_data/temp_combin_daily.csv')#daily temperature and precipitation data
+svpath <- "G:/我的雲端硬碟/GLORIA_個人處理/paper_準備/SYU_DAS_water/result"
 ```
 
 ### 氣候與物種增關係
@@ -59,13 +61,52 @@ x11_r <- r_sp_11[nich,on=.(code=i.code.1)]#1X1樣區資料
 
 Step 3. 計算樣區的嗜熱指數與嗜濕指數
 分別計算1X1樣區的嗜熱指數以及section的嗜熱指數
+step 3.1 section
 ```{r}
-####section 
+####計算各樣區的指標
 sec_r[,r_heat:=cov*bio_1_3][,r_pre:=cov*bio_12_3]
 trend_ind <-sec_r[,.(heat_ind=sum(r_heat)/sum(cov),pre_ind=sum(r_pre)/sum(cov)),by=.(region,Summit,dir,Summit_dir,Period)]
+trend_ind[,Summit:=as.factor(Summit)][,Period:=as.factor(Period)]
+fwrite(trend_ind,"ind_caculate.csv")
+#######################球形檢定
+shapi_t_r <- trend_ind %>%
+  group_by(Summit,Period) %>%
+  shapiro_test(heat_ind)
+r <- trend_ind %>%
+  group_by(Summit,Period) %>%
+  shapiro_test(pre_ind)
+shapi_t_r <- rbind(shapi_t_r,r)
+fwrite(shapi_t_r,paste0(svpath,"/Normality_Test_for_heat_mosi_ind.csv"))
+ggqqplot(trend_ind, "heat_ind", ggtheme = theme_bw()) +
+  facet_grid(Summit ~ Period)
+ggsave(paste0(svpath,"/plot/Thermo_qqplot.jpeg"),width = 8,height = 15,dpi=600)
+ggqqplot(trend_ind, "pre_ind", ggtheme = theme_bw()) +
+  facet_grid(Summit ~ Period)
+ggsave(paste0(svpath,"/plot/moist_qqplot.jpeg"),width = 8,height = 15,dpi=600)
+####################計算調查間差值
+dif <-dcast(trend_ind,region+Summit+dir+Summit_dir~Period,value.var=c("heat_ind","pre_ind"))
+dif[,h_p12:=heat_ind_P2-heat_ind_P1][
+  ,h_p23:=heat_ind_P3-heat_ind_P2][
+    ,p_p12:=pre_ind_P2-pre_ind_P1][
+      ,p_p23:=pre_ind_P3-pre_ind_P2]
+t.test_total_r <- NULL
+for (j in c('h_p12','h_p23','p_p12','p_p23')){
+for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
+  ttest_r <- t.test(dif[Summit==i,j,with=FALSE],mu=0)
+  r <- data.table(variable=j,Summit=i,
+                  t=ttest_r$statistic,
+                  df=ttest_r$parameter,
+                  p_value=ttest_r$p.value)
+  t.test_total_r <- rbind(t.test_total_r,r)}
+}
+fwrite(t.test_total_r,paste0(svpath,"/Normality_Test_for_heat_mosi_ind.csv"))
+############
+ggplot(dif,aes(x=Summit,y=p_p12))+
+   geom_boxplot(fill='#A4A4A4', color="black")+
+  theme_classic()
 
-r_ind_sec <- trend_ind[,.(h_avg=mean(heat_ind),h_sd=sd(heat_ind),p_avg=mean(pre_ind),p_sd=sd(pre_ind)),by=.(region,Summit,Period)]
 ######HSD分組
+
 aov_cls <- function(x){
   c_r <- NULL
   for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
@@ -98,6 +139,14 @@ ggsave(paste0("plot/Thermo_id_",i,".jpeg"),width = 8,height = 6,dpi=600)
 
 
 ```
+step 3.2 1x1
+```{r}
+setnames(x11_r,c("Target region code","Summit code"),c("region","summit"))
+
+
+
+```
+
 
 
 Step 4. 以山峰為主體做嗜熱與嗜濕指數分析
