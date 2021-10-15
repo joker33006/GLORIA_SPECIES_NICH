@@ -20,6 +20,8 @@ library(ggpubr)
 library(agricolae)#for HSD test
 library(tidyverse) #pipe
 library(rstatix) #for Repeated Measures ANOVA and post-hoc tests
+library(patchwork) #arrange
+library(broom)
 ```
 ### 基礎資料載入
 載入三項基礎資料，分別為2008-2020的section plot 調查資料、section plot 的環境資料以及日均溫與降雨量資料
@@ -68,6 +70,7 @@ sec_r[,r_heat:=cov*bio_1_3][,r_pre:=cov*bio_12_3]
 trend_ind <-sec_r[,.(heat_ind=sum(r_heat)/sum(cov),pre_ind=sum(r_pre)/sum(cov)),by=.(region,Summit,dir,Summit_dir,Period)]
 trend_ind[,Summit:=as.factor(Summit)][,Period:=as.factor(Period)]
 fwrite(trend_ind,"ind_caculate.csv")
+fwrite(sec_r,"SYU_DAS_section_and_niche_data.csv")
 #######################球形檢定
 shapi_t_r <- trend_ind %>%
   group_by(Summit,Period) %>%
@@ -99,51 +102,79 @@ for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
                   p_value=ttest_r$p.value)
   t.test_total_r <- rbind(t.test_total_r,r)}
 }
-fwrite(t.test_total_r,paste0(svpath,"/Normality_Test_for_heat_mosi_ind.csv"))
+fwrite(t.test_total_r,paste0(svpath,"/t_test_of_ind_dif_with_zero.csv"))
+dif[,Summit:=factor(Summit,levels= c('SEN','SUN','YAT','TSW','DSH','JNJ'))]
+t.test_total_r[p_value<0.05,sign:="*"]
+t_r <- dcast(t.test_total_r,Summit~variable)
+
+t_r <- t_r[dif[,lapply(.SD,max),by=Summit,.SDcols=11:14],on=.(Summit=Summit)]
+t_r[,Summit:=factor(Summit,levels= c('SEN','YAT','SUN','TSW','DSH',"JNJ"))]
 ############
-ggplot(dif,aes(x=Summit,y=p_p12))+
-   geom_boxplot(fill='#A4A4A4', color="black")+
-  theme_classic()
-
-######HSD分組
-
-aov_cls <- function(x){
-  c_r <- NULL
-  for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
-    t_aov <- aov(get(x)~Period,data=trend_ind[Summit==i])
-    tuk <- HSD.test(t_aov,'Period', alpha = 0.05)
-    cls <- as.data.table(cbind(data.table(summit=i,period=rownames(tuk$groups),tuk$group)))
-    c_r <- rbind(c_r,cls)
-    }
-  return(c_r)}
-###########
-r_sec_ind <- r_ind_sec[aov_cls('heat_ind'),on=.(Summit=summit,Period=period)]
-setnames(r_sec_ind,"groups","t_groups")
-r_sec_ind <- r_sec_ind[aov_cls('pre_ind'),on=.(Summit=summit,Period=period)]
-setnames(r_sec_ind,"groups","p_groups")
-
-#########繪圖
-w=0.8
-ggplot(r_sec_ind,aes(x=Summit,y=p_avg, fill=Period))+
-  geom_bar(stat="identity", position=position_dodge(),width = w)+
-  geom_errorbar(aes(ymin=p_avg-p_sd, ymax=p_avg+p_sd), 
-                position = position_dodge(width =w),width = 0.2)+
-  theme_classic2()+
-  geom_text(aes(label=p_groups, group=Period),
-            position=position_dodge(width=w),vjust=-3)+
-  scale_x_discrete(limits=c("SEN","YAT",'SUN',"TSW","DSH","JNJ"))+
-  scale_fill_brewer(palette = 'Set2',labels = c("2008-2009", "2013-2014", "2019-2020"))+
-  labs(x="Summit",y="Moist-philic index",fill="Monitoring cycle")+
-  ylim(c(0,2400))
-ggsave(paste0("plot/Thermo_id_",i,".jpeg"),width = 8,height = 6,dpi=600)
-
-
+w=0.4
+for (i in 1:4){
+var <- c("h_p12","h_p23","p_p12","p_p23")
+ind <- c("Thermophilization indicator","moist-philization indicator")
+pos <- c(1,60)
+ggplot(dif,aes(x=Summit,y=get(var[i]),fill=Summit))+
+   geom_boxplot(width=w)+
+  scale_fill_brewer(palette = 'Set2')+
+  theme_classic()+
+  geom_text(data=t_r, aes(x=Summit,y=get(paste0("i.",var[i]))+pos[ceiling(i/2)], label=get(var[i])))+
+   labs(x="Summit",y=ind[ceiling(i/2)],title=paste0("(",letters[i],")"))+
+  theme(legend.position = "None")+
+  scale_x_discrete(limits= c('SEN','YAT','SUN','TSW','DSH',"JNJ"))+
+  geom_hline(yintercept=0,linetype="dotted",colour="#BB0000")
+ggsave(paste0(svpath,"/plot/",ind[ceiling(i/2)],"_",var[i],".jpeg"),width = 4,height = 3,dpi=600)
+}
 ```
-step 3.2 1x1
+step 3.2 1x1 #拋棄不用
+
 ```{r}
 setnames(x11_r,c("Target region code","Summit code"),c("region","summit"))
+x11_r <- x11_r[!is.na(period)]
+x11_r[,r_heat:=cov*bio_1_3][,r_pre:=cov*bio_12_3]
+x11_r[,Summit_dir:=paste0(summit,"_",`Quadrat code`)]
+ind_r <-x11_r[,.(heat_ind=sum(r_heat)/sum(cov),pre_ind=sum(r_pre)/sum(cov)),by=.(region,summit,Dir,Summit_dir,period)]
+x11_dif <-dcast(ind_r,region+summit+Dir+Summit_dir~period,value.var=c("heat_ind","pre_ind"))
+x11_dif[,h_p12:=heat_ind_2-heat_ind_1][
+  ,h_p23:=heat_ind_3-heat_ind_2][
+    ,p_p12:=pre_ind_2-pre_ind_1][
+      ,p_p23:=pre_ind_3-pre_ind_2]
+############# t test with Zero
+t.test_total_r <- NULL
+for (j in c('h_p12','h_p23','p_p12','p_p23')){
+for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
+  ttest_r <- t.test(x11_dif[summit==i,j,with=FALSE],mu=0)
+  r <- data.table(variable=j,Summit=i,
+                  t=ttest_r$statistic,
+                  df=ttest_r$parameter,
+                  p_value=ttest_r$p.value)
+  t.test_total_r <- rbind(t.test_total_r,r)}
+}
+fwrite(t.test_total_r,paste0(svpath,"/x11_t_test_of_ind_dif_with_zero.csv"))
+dif[,Summit:=factor(Summit,levels= c('SEN','SUN','YAT','TSW','DSH','JNJ'))]
+t.test_total_r[p_value<0.05,sign:="*"]
+t_r <- dcast(t.test_total_r,Summit~variable)
 
+t_r <- t_r[dif[,lapply(.SD,max),by=Summit,.SDcols=11:14],on=.(Summit=Summit)]
+t_r[,Summit:=factor(Summit,levels= c('SEN','YAT','SUN','TSW','DSH',"JNJ"))]
 
+w=0.4
+for (i in 1:4){
+var <- c("h_p12","h_p23","p_p12","p_p23")
+ind <- c("Thermophilization indicator","moist-philization indicator")
+pos <- c(1,60)
+ggplot(x11_dif,aes(x=summit,y=get(var[i]),fill=summit))+
+   geom_boxplot(width=w)+
+  scale_fill_brewer(palette = 'Set2')+
+  theme_classic()+
+  geom_text(data=t_r, aes(x=Summit,y=get(paste0("i.",var[i]))+pos[ceiling(i/2)], label=get(var[i])))+
+   labs(x="Summit",y=ind[ceiling(i/2)],title=paste0("(",letters[i],")"))+
+  theme(legend.position = "None")+
+  scale_x_discrete(limits= c('SEN','YAT','SUN','TSW','DSH',"JNJ"))+
+  geom_hline(yintercept=0,linetype="dotted",colour="#BB0000")
+ggsave(paste0(svpath,"/plot/x11_",ind[ceiling(i/2)],"_",var[i],".jpeg"),width = 4,height = 3,dpi=600)
+}
 
 ```
 
@@ -197,76 +228,82 @@ ggsave("plot/Moist_indexXSummit.jpeg",width=6,height=3,dpi=600)
 
 ```
 
-Step 5. 各方位嗜熱指數與溫度差異
+
+
+step 7 物種數增減
 ```{r}
-n_ind_t <- dcast(nich_ind,region+Summit+dir+Summit_dir~period,value.var = "heat_ind",fun=sum)
-n_ind_t[,p2_d:=P2-P1][,p3_d:=P3-P2]
-colnames(t_p)
-t_p_t <- dcast(t_p,summit+direction~w_period,value.var = 'temp',fun=sum)
-n_t <- n_ind_t[t_p_t,on=.(Summit=summit,dir=direction)]
-n_t[,alt:=gsub("^[A-Z]","",Summit_dir)]
-colnames(n_t)
-ggplot(n_t,aes(x=i.P3,y=p3_d,color=alt))+
-  geom_point()+
-  geom_smooth(method = lm)+
-  facet_grid(Summit~.)
-```
+input <- fread("SYU_DAS_section_and_niche_data.csv")
+base_clim <- fread(paste0(svpath,"/Summit_basic.csv"))
+input[,bio_1_r:=bio_1_4-bio_1_2][,bio_12_r:=bio_12_4-bio_12_2]
+spe_in_S <- input[,.(r_cov=sum(r_cov)),by=.(Period,region,Summit,Name,code,bio_1_3,bio_12_3,bio_1_r,bio_12_r)]
+#以山峰為單位計算物種增減
+spe_in_S[r_cov>0,count:=1]
+spe_count <- dcast(spe_in_S,region+Summit+Name+code+bio_1_3+bio_12_3+bio_1_r+bio_12_r~Period,
+                   value.var = c("r_cov","count"),fill = 0)
+spe_count[,cov_12:=r_cov_P2-r_cov_P1][
+  ,cov_23:=r_cov_P3-r_cov_P2][,cou_12:=count_P2-count_P1][,
+    cou_23:=count_P3-count_P2]
+stat_ad <- merge(merge(spe_count[cou_12>0,.(add_12=sum(cou_12)),by=.(Summit)],
+      spe_count[cou_12<0,.(dis_12=-sum(cou_12)),by=.(Summit)],on=.(Summit=Summit),all=TRUE),
+      merge(spe_count[cou_23>0,.(add_23=sum(cou_23)),by=.(Summit)],
+      spe_count[cou_23<0,.(dis_23=-sum(cou_23)),by=.(Summit)],on=.(Summit=Summit)),
+      on=.(Summit=Summit))
+stat_ad <- stat_ad[base_clim,on=.(Summit=Summit)]
+stat_ad[,10:14] <- NULL
+stat_ad[is.na(add_12),add_12:=0]
+colnames(stat_ad)
+f_pr <- NULL
+for(i in c("add_12","dis_12","add_23","dis_23")){
+  for (j in c("avg_t2","avg_p","alt")){
+      pr <- with(stat_ad,{
+     cor.test(get(i), get(j), method = c("pearson"))})
+  ppr <- data.table(var=i,clim=j, t=pr$statistic,cor=pr$estimate,pvalue=pr$p.value)
+  f_pr <- rbind(f_pr,ppr)
+  }
+}
+fwrite(f_pr,paste0(svpath,"correlation_clim_spe_n_var.csv"))
 
-Step 6. 增減物種之特性
-使用資料
-input：p5m,p10m樣區植物覆蓋絕對值、相對值以及區位特性
-name_list:植物名錄含Raunkiær's life form
+```
+step 8 物種覆蓋增減與氣候區位
+
 ```{r}
-head(name_list)
-input <- input[name_list,on=.(code=code)]
-input[,d_cov_p2:=T_cover_P2-T_cover_P1][,d_cov_p3:=T_cover_P3-T_cover_P2]
-input <- input[!is.na(Summit)]
-summit_cover <- input[,.(T_c_p1=sum(T_cover_P1),
-                  T_c_p2=sum(T_cover_P2),
-                  T_c_p3=sum(T_cover_P3),
-                  d_cov_p2=sum(d_cov_p2),
-                  d_cov_p3=sum(d_cov_p3)),
-                  by=.(Summit,code,Name,bio_1_3,bio_12_3,Rk_t)]
+fwrite(spe_count,paste0(svpath,"spc_cov_var_r_data.csv"))
+cov_ch <- fread(paste0(svpath,"spc_cov_var_r_data.csv"))
+cov_ch[cov_12>0,cag_12:="extension"][cov_12<0,cag_12:="reduction"][
+  cov_23>0,cag_23:="extension"][cov_23<0,cag_23:="reduction"]
+cov_ch[,o_cov_12:=cov_12][,o_cov_23:=cov_23]
+cov_ch[,cov12_r:=(r_cov_P2+1)/(r_cov_P1+1)][,cov23_r:=(r_cov_P3+1)/(r_cov_P2+1)]
+cov_ch[cov_12<0,cov_12:=cov_12*-1]
+cov_ch[cov_23<0,cov_23:=cov_23*-1]
+cov_ch[is.na(cag_12),cag_12:="0"]
+cov_ch[is.na(cag_23),cag_23:="0"]
+cov_ch[,Summit:=factor(Summit,levels = c("SEN","YAT","SUN","TSW","DSH","JNJ"))]
+############### normalize test of cov change 
+shapiro_test(cov_ch,cov12_r)
+ggplot(data=cov_ch,aes(x=cov12_r))+
+  geom_density(kernel = "gaussian")
 
-p2 <-rbind(summit_cover[d_cov_p2==0&(T_c_p1>0|T_c_p2>0),
-                        .(cls="Equal",dif=.N),
-                        by=.(Summit,Rk_t)],
-           summit_cover[d_cov_p2>0,.(cls="Increaing",dif=.N),
-                        by=.(Summit,Rk_t)],
-           summit_cover[d_cov_p2<0,.(cls="Decreaing",dif=.N),
-                        by=.(Summit,Rk_t)])
-p2[,cls:=factor(cls,levels = c("Increaing","Equal","Decreaing"))]
-ggplot(p2,aes(Rk_t,y=dif,fill=cls))+
-  geom_bar(stat='sum')+
-  facet_grid(.~Summit)+
-  labs(x="Species number",y="Raunkiær's life form")+
-  scale_fill_brewer(palette = 'Set2',name = "Class")
 
-ggsave('plot/P1_P2_cover_change_life_form.jpeg',width=9,height=4,dpi=600)
-p3 <-rbind(summit_cover[d_cov_p3==0&(T_c_p2>0|T_c_p3>0),
-                        .(cls="Equal",dif=.N),
-                        by=.(Summit,Rk_t)],
-           summit_cover[d_cov_p3>0,.(cls="Increaing",dif=.N),
-                        by=.(Summit,Rk_t)],
-           summit_cover[d_cov_p3<0,.(cls="Decreaing",dif=.N),
-                        by=.(Summit,Rk_t)])
-p3[,cls:=factor(cls,levels = c("Increaing","Equal","Decreaing"))]
+###########################333
+m1 <- glm(cov12_r~bio_1_3+bio_12_3+bio_1_r+bio_12_r,
+          data=cov_ch[!cov12_r==1],family=Gamma(link = "log"))
+glance(m1)
+##################
 
-ggplot(p3,aes(Rk_t,y=dif,fill=cls))+
-  geom_bar(stat='sum')+
-  facet_grid(.~Summit)+
-  labs(x="Species number",y="Raunkiær's life form")+
-  scale_fill_brewer(palette = 'Set2',name = "Class")
-ggsave('plot/P2_P3_cover_change_life_form.jpeg',width=9,height=4,dpi=600)
+ggplot(cov_ch[region=="DAS"],aes(x=bio_1_3,y=bio_12_3))+
+  geom_point(aes(color = cag_12, size = cov_12), alpha = 0.5,na.rm = TRUE)+
+  facet_grid(~Summit)+
+  labs(x="precipitation niche (mm)",y="temperature niche (°C)",color="Alter",size="DC")
 
-g_p2 <- ggplot(summit_cover,aes(x=bio_1_3/10,y=bio_12_3))+ 
-  stat_density_2d(aes(fill = stat(level)),
-                  geom = "polygon", 
-                  n = 100 ,
-                  bins = 10)+
-  facet_grid(.~Summit)
-plot_gg(g_p2, width = 8, height = 5, multicore = TRUE, scale = 250, 
-        zoom = 0.7, theta = 10, phi = 30, windowsize = c(800, 800))
+DAS_pr <- ggplot(cov_ch[region=="DAS"],aes(x=bio_1_r,y=bio_12_r))+
+  geom_point(aes(color = cag_12, size = cov_12), alpha = 0.5,na.rm = TRUE)+
+  facet_grid(~Summit)+
+  labs(x="precipitation niche (mm)",y="temperature niche (°C)",color="Alter",size="DC")
+SYU_pr <- ggplot(cov_ch[region=="SYU"],aes(x=bio_1_r,y=bio_12_r))+
+  geom_point(aes(color = cag_12, size = cov_12), alpha = 0.5,na.rm = TRUE)+
+  facet_grid(~Summit)+
+  labs(x="precipitation niche (mm)",y="temperature niche (°C)",color="Alter",size="DC") 
+DAS_pr+SYU_pr+ plot_layout(ncol = 1, guides = "collect")
+  
 ```
-
 
