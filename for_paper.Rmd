@@ -15,13 +15,18 @@ output: html_notebook
 ```{r echo=FALSE}
 library(data.table) #for data loading and 
 library(vegan) # for the vegetation analysis(which like diversity and multiple variable analysis)
-library(ggplot2)
-library(ggpubr)
+
 library(agricolae)#for HSD test
 library(tidyverse) #pipe
 library(rstatix) #for Repeated Measures ANOVA and post-hoc tests
-library(patchwork) #arrange
 library(broom)
+################plot package
+library(ggplot2)
+library(ggpubr)
+library(ggdist) #cloud plot
+library(gghalves)
+library(patchwork) #arrange
+library(grid)##for textGrob
 ```
 ### 基礎資料載入
 載入三項基礎資料，分別為2008-2020的section plot 調查資料、section plot 的環境資料以及日均溫與降雨量資料
@@ -44,7 +49,7 @@ wi_nich <- fread('Surveydata_and_niche/WI_niche.csv')
 name_list <- fread("Surveydata_and_niche/name_list.csv")
 code_ref <- name_list[,.(code,GBIF_code)]
 nich <- bio_nich[wi_nich,on=.(code=code)]
-nich <- nich[code_ref,on=.(code=GBIF_code)]#將所有氣候區位資料結合
+nich <- nich[code_ref,on=.(code=GBIF_code),all=TRUE]#將所有氣候區位資料結合
 nich[,i.V1:=NULL]
 setnames(x = r_sp_sec,old =c("Target region code","Summit code","方位","Sunnit area section","coverage"),new=c("region","Summit","dir","Summit_dir","cov"))
 r_data <- dcast(r_sp_sec,region+Summit+dir+Summit_dir+Name+code~Period,value.var = c('cov',"r_cov"),fun=sum)#r_data為不同時期之物種覆蓋度整理
@@ -92,8 +97,12 @@ dif[,h_p12:=heat_ind_P2-heat_ind_P1][
   ,h_p23:=heat_ind_P3-heat_ind_P2][
     ,p_p12:=pre_ind_P2-pre_ind_P1][
       ,p_p23:=pre_ind_P3-pre_ind_P2]
+dif[,h_p13:=heat_ind_P3-heat_ind_P1][ 
+        ,p_p13:=pre_ind_P3-pre_ind_P1]
 t.test_total_r <- NULL
-for (j in c('h_p12','h_p23','p_p12','p_p23')){
+JNJ_exc <- dif[Summit=="JNJ"&Summit_dir!="E10"]
+t.test(JNJ_exc[,h_p23],mu=0)
+for (j in c('h_p12','h_p23','p_p12','p_p23','h_p13',"p_p13")){
 for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
   ttest_r <- t.test(dif[Summit==i,j,with=FALSE],mu=0)
   r <- data.table(variable=j,Summit=i,
@@ -104,21 +113,20 @@ for (i in c('SEN','SUN','YAT','DSH','JNJ','TSW')){
 }
 fwrite(t.test_total_r,paste0(svpath,"/t_test_of_ind_dif_with_zero.csv"))
 dif[,Summit:=factor(Summit,levels= c('SEN','SUN','YAT','TSW','DSH','JNJ'))]
-t.test_total_r[p_value<0.05,sign:="*"]
-t_r <- dcast(t.test_total_r,Summit~variable)
-
-t_r <- t_r[dif[,lapply(.SD,max),by=Summit,.SDcols=11:14],on=.(Summit=Summit)]
+t.test_total_r[p_value<0.05,Sign:="*"]
+t.test_total_r[is.na(sign),Sign:=""]
+t_r <- dcast(data=t.test_total_r,Summit~variable,value.var ="sign")
+t.test_total_r[,sign]
+t_r <- t_r[dif[,lapply(.SD,max),by=Summit,.SDcols=11:16],on=.(Summit=Summit)]
 t_r[,Summit:=factor(Summit,levels= c('SEN','YAT','SUN','TSW','DSH',"JNJ"))]
 ############
 w=0.4
 for (i in 1:4){
-var <- c("h_p12","h_p23","p_p12","p_p23")
+var <- c("h_p12","h_p23","p_p12","p_p23","h_p13","p_p13")
 ind <- c("Thermophilization indicator","moist-philization indicator")
 pos <- c(1,60)
 ggplot(dif,aes(x=Summit,y=get(var[i]),fill=Summit))+
-   geom_boxplot(width=w)+
-  scale_fill_brewer(palette = 'Set2')+
-  theme_classic()+
+   geom_boxplot(width=w,alpha = 0.5)+
   geom_text(data=t_r, aes(x=Summit,y=get(paste0("i.",var[i]))+pos[ceiling(i/2)], label=get(var[i])))+
    labs(x="Summit",y=ind[ceiling(i/2)],title=paste0("(",letters[i],")"))+
   theme(legend.position = "None")+
@@ -126,6 +134,20 @@ ggplot(dif,aes(x=Summit,y=get(var[i]),fill=Summit))+
   geom_hline(yintercept=0,linetype="dotted",colour="#BB0000")
 ggsave(paste0(svpath,"/plot/",ind[ceiling(i/2)],"_",var[i],".jpeg"),width = 4,height = 3,dpi=600)
 }
+for (i in 1:2){
+var <- c("h_p13","p_p13")
+ind <- c("Thermophilization indicator","moist-philization indicator")
+pos <- c(1,60)
+ggplot(dif,aes(x=Summit,y=get(var[i]),fill=Summit))+
+   geom_boxplot(width=w,alpha = 0.5)+
+  geom_text(data=t_r, aes(x=Summit,y=get(paste0("i.",var[i]))+pos[i], label=get(var[i])))+
+   labs(x="Summit",y=ind[i],title=paste0("(",letters[i],")"))+
+  theme(legend.position = "None")+
+  scale_x_discrete(limits= c('SEN','YAT','SUN','TSW','DSH',"JNJ"))+
+  geom_hline(yintercept=0,linetype="dotted",colour="#BB0000")
+ggsave(paste0(svpath,"/plot/",ind[i],"_",var[i],".jpeg"),width = 4,height = 3,dpi=600)
+}
+
 ```
 step 3.2 1x1 #拋棄不用
 
@@ -278,32 +300,140 @@ cov_ch[cov_23<0,cov_23:=cov_23*-1]
 cov_ch[is.na(cag_12),cag_12:="0"]
 cov_ch[is.na(cag_23),cag_23:="0"]
 cov_ch[,Summit:=factor(Summit,levels = c("SEN","YAT","SUN","TSW","DSH","JNJ"))]
-############### normalize test of cov change 
-shapiro_test(cov_ch,cov12_r)
-ggplot(data=cov_ch,aes(x=cov12_r))+
-  geom_density(kernel = "gaussian")
+spe_den <-unique(cov_ch[,.(region,Name,code,bio_1_3,bio_12_3,bio_1_r,bio_12_r)])
 
+############### climate niche distribution plot 
+nich_pre <- ggplot(spe_den, aes(x = region, y = bio_12_3,fill=region,color=region)) + 
+  stat_halfeye(
+    adjust = .5, 
+    width = .5, 
+    .width = 0,
+    alpha = .5,
+    justification = -.2, 
+    point_colour = NA
+  ) + 
+  geom_boxplot(
+    width = .05, 
+    outlier.shape = NA,
+     alpha = .5
+  ) +
+  ## add justified jitter from the {gghalves} package
+  geom_half_point(
+    ## draw jitter on the left
+    side = "l", 
+    ## control range of jitter
+    range_scale = .4, 
+    ## add some transparency
+    alpha = .5
+  )+
+  labs(x="Region",y="Precipitation niche (mm)",title="(b)")+
+  theme(legend.position = "none")
+nich_temp <- ggplot(spe_den, aes(x = region, y = bio_1_3,fill=region,color=region)) + 
+   stat_halfeye(
+    adjust = .5, 
+    width = .5, 
+    .width = 0,
+    alpha = .5,
+    justification = -.2, 
+    point_colour = NA
+  ) + 
+  geom_boxplot(
+    width = .05, 
+    outlier.shape = NA,
+     alpha = .5
+  ) +
+  ## add justified jitter from the {gghalves} package
+  geom_half_point(
+    ## draw jitter on the left
+    side = "l", 
+    ## control range of jitter
+    range_scale = .4, 
+    ## add some transparency
+    alpha = .5
+  )+
+  labs(x="Region",y="Temperature niche (°C)",title="(a)")+
+  theme(legend.position = "none")
+nich_temp+nich_pre
+ggsave(paste0(svpath,"/plot/climate_niche_all_species.jpeg"),width = 8,height = 5,dpi=600)
+###########################finish the plot
+###################glm of the cover and species climate niche
 
-###########################333
-m1 <- glm(cov12_r~bio_1_3+bio_12_3+bio_1_r+bio_12_r,
-          data=cov_ch[!cov12_r==1],family=Gamma(link = "log"))
-glance(m1)
-##################
+m1 <- glm(cov12_r~bio_1_3+bio_12_3,
+          data=cov_ch[cov12_r!=1],family=Gamma(link = "log"))
+m2 <- glm(cov23_r~bio_1_3+bio_12_3,
+          data=cov_ch[cov23_r!=1],family=Gamma(link = "log"))
 
-ggplot(cov_ch[region=="DAS"],aes(x=bio_1_3,y=bio_12_3))+
+tr <- rbind(data.table(cov="cov_12",
+                            coef=rownames(summary(m1)$coefficients), 
+                            summary(m1)$coefficients),
+                 data.table(cov="cov_23",
+                            coef=rownames(summary(m2)$coefficients), 
+                            summary(m2)$coefficients))
+
+fwrite(tr,paste0(svpath,"/glm_test_clim_nich_cover.csv"))
+##################to test the each summit
+summit_tr <- NULL
+for (i in c("SEN","YAT","SUN","TSW","DSH","JNJ")){
+  m3 <- glm(cov23_r~bio_1_3+bio_12_3,
+          data=cov_ch[cov23_r!=1&Summit==`i`],family=Gamma(link = "log"))
+  m4 <- glm(cov23_r~bio_1_3+bio_12_3,
+          data=cov_ch[cov23_r!=1&Summit==`i`],family=Gamma(link = "log"))
+tr_2 <- rbind(data.table(summit=i,cov="cov_12",
+                            coef=rownames(summary(m3)$coefficients), 
+                            summary(m3)$coefficients),
+                 data.table(summit=i,cov="cov_23",
+                            coef=rownames(summary(m4)$coefficients), 
+                            summary(m4)$coefficients))
+summit_tr <- rbind(summit_tr,tr_2)
+}
+fwrite(summit_tr,paste0(svpath,"/glm_test_each_clim_nich_cover.csv"))
+############mc1 to mc2
+for (i in c("DAS","SYU")){
+p <- ggplot(cov_ch[region==`i`&!cov_12==0],aes(x=bio_1_3,y=bio_12_3))+
   geom_point(aes(color = cag_12, size = cov_12), alpha = 0.5,na.rm = TRUE)+
   facet_grid(~Summit)+
-  labs(x="precipitation niche (mm)",y="temperature niche (°C)",color="Alter",size="DC")
+  labs(x="",
+       y="",
+       color="Alter",size="Cover difference")+
+  scale_size(breaks=seq(20,180,40))+
+  scale_color_discrete(direction=-1)
+if (i=="SYU"){p <- p+
+  theme(legend.position = "none")}
+assign(paste0("pr_",i),p)
+}
+ 
+pr <- patchworkGrob(pr_DAS+pr_SYU+ plot_layout(ncol = 1, guides = "collect"))
+pr <- gridExtra::grid.arrange(pr, 
+                              left ="Precipitation niche (mm)",
+                              bottom = textGrob("Temperature niche (°C)", 
+                                                vjust = -1,
+                                                hjust=0.7),
+                              top= textGrob("(a) MC1 to MC2", hjust = 2.5))  
+ggsave(paste0(svpath,"/plot/cover_vs_nich_MC12.jpeg"),plot=pr,width=8,height=5,dpi=600)
 
-DAS_pr <- ggplot(cov_ch[region=="DAS"],aes(x=bio_1_r,y=bio_12_r))+
-  geom_point(aes(color = cag_12, size = cov_12), alpha = 0.5,na.rm = TRUE)+
+
+############mc2 to mc3
+for (i in c("DAS","SYU")){
+p <- ggplot(cov_ch[region==`i`&!cov_23==0],aes(x=bio_1_3,y=bio_12_3))+
+  geom_point(aes(color = cag_23, size = cov_23), alpha = 0.5,na.rm = TRUE)+
   facet_grid(~Summit)+
-  labs(x="precipitation niche (mm)",y="temperature niche (°C)",color="Alter",size="DC")
-SYU_pr <- ggplot(cov_ch[region=="SYU"],aes(x=bio_1_r,y=bio_12_r))+
-  geom_point(aes(color = cag_12, size = cov_12), alpha = 0.5,na.rm = TRUE)+
-  facet_grid(~Summit)+
-  labs(x="precipitation niche (mm)",y="temperature niche (°C)",color="Alter",size="DC") 
-DAS_pr+SYU_pr+ plot_layout(ncol = 1, guides = "collect")
-  
+  labs(x="",
+       y="",
+       color="Alter",size="Cover difference")+
+  scale_size(breaks=seq(20,180,40))+
+  scale_color_discrete(direction=-1)
+if (i=="SYU"){p <- p+
+  theme(legend.position = "none")}
+assign(paste0("pr_",i),p)
+}
+ 
+pr <- patchworkGrob(pr_DAS+pr_SYU+ plot_layout(ncol = 1, guides = "collect"))
+pr <- gridExtra::grid.arrange(pr, 
+                              left ="Precipitation niche (mm)",
+                              bottom = textGrob("Temperature niche (°C)", 
+                                                vjust = -1,
+                                                hjust=0.7),
+                              top= textGrob("(b) MC2 to MC3", hjust = 2.5))  
+ggsave(paste0(svpath,"/plot/cover_vs_nich_MC23.jpeg"),plot=pr,width=8,height=5,dpi=600)
 ```
 
