@@ -357,7 +357,7 @@ nich_temp+nich_pre
 ggsave(paste0(svpath,"/plot/climate_niche_all_species.jpeg"),width = 8,height = 5,dpi=600)
 ###########################finish the plot
 ###################glm of the cover and species climate niche
-
+?glm
 m1 <- glm(cov12_r~bio_1_3+bio_12_3,
           data=cov_ch[cov12_r!=1],family=Gamma(link = "log"))
 m2 <- glm(cov23_r~bio_1_3+bio_12_3,

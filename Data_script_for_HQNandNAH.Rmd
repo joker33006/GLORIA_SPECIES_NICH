@@ -1,0 +1,259 @@
+---
+title: "GLORIA second stage_Diversity and niche"
+output: html_notebook
+---
+## 前述
+這是GLORIA第二階段發表的paper試驗
+主軸在更細緻的討論樣區的物種多樣性在不同時期的變化以及消失、出現的物種特性。
+研究問題：
+1. 在各山峰細緻的生物多樣性表現出怎樣的格局?是否跟溫度或其他環境因子有關?
+2. 在第一篇報告中，我們發現有溫度上升的事實。那增加的物種與覆蓋度擴大的物種是否與溫度上升有關?那消失的物種呢?
+## 研究目的
+1. 討論六座山峰中各方位樣區alpha多樣性與Beta多樣性
+2. 六座山峰的多樣性變化趨勢與氣候變化趨勢
+3. 討論消失與出現物種的氣候區位與生活型
+4. 植群氣候區位組成是否反映了氣候變化型態
+
+## 分析測試
+### package 載入
+分析使用到的package集中處
+```{r echo=FALSE}
+library(data.table) #for data loading and 
+library(vegan) # for the vegetation analysis(which like diversity and multiple variable analysis)
+library(ggplot2)
+library(ggpubr)
+library(agricolae)#for HSD test
+library(rayshader) # for 3D plot function 
+library(agricolae) #post hoc
+library(ggforce)#group for pca
+library(ggdist)# stat_halfeye
+library(gghalves) #geom_half_point
+```
+
+### 基礎資料載入
+載入三項基礎資料，分別為2008-2020的section plot 調查資料、section plot 的環境資料以及日均溫與降雨量資料
+```{r echo=FALSE}
+path <- "G:/我的雲端硬碟/GLORIA_個人處理/2021/analysis_data/"
+r_sp <-fread(paste0(path,'2009_2021_HQM_NAH_p5p10_BBq.csv'))
+lv <- c("QNS","QSS","SMN","ZNF","SMZ","LIN")
+##以下資料在本次期末報告中未使用到
+###2008-2020,DAS and SYU, P5m P10m 
+#r_env <- fread('Surveydata_and_niche/2008_2020_DAS_SYU_p5p10_plot_env.csv')# plot environment data table
+#r_wth <- fread('Weather_data/temp_combin_daily.csv')#daily temperature and precipitation data
+```
+### step 1. 多樣性指數計算與分析
+
+
+```{r echo=FALSE}
+
+colnames(r_sp)
+r_sp[,pcode:=paste0(summit,'-',dir_alt)]
+r_sp[year %in% 2009:2010,period:='MC1'][
+  year %in% 2014:2015,period:='MC2'][
+  year %in% 2020:2021,period:="MC3"
+  ]
+r_sp <- r_sp[code!="#N/A"]
+sp_p1 <- dcast(r_sp,year+pcode+period ~ code,
+value.var = 'cover',sum)
+##計算多樣性指數
+div <- data.table(sp_p1[,1:3],
+                  H=diversity(sp_p1[,4:ncol(sp_p1)]),
+                  D=diversity(sp_p1[,4:ncol(sp_p1)],
+                              index = "simpson"),
+                  N=specnumber(sp_p1[,4:ncol(sp_p1)],))
+div[,E:=H/log(N)]
+div[,summit:=gsub('-[A-Z]{1}.*','',pcode)][
+  ,div_plot:=gsub('^[A-Z]{1,3}-','',pcode)]
+div[,dir:=gsub('//d+','',div_plot)][,alt:=gsub("^[A-Z]","",div_plot)]
+div[,summit:=factor(summit,levels=c("QNS","QSS","SMN","ZNF","SMZ","LIN"))]
+# div:各山峰樣區物種數與Shannon指數,並建立細部的分組因子
+
+###利用ANOVA與HSD計算分組
+colnames(div)
+div_t<- melt(div,
+     id.vars = c("period",'summit',"div_plot"),#保留之參數
+     measure.vars = c('N','H','D',"E"), #轉置之名稱，可用pattern+regx 做查找
+     variable.name = "index") #給予新參數名稱
+c_r <- NULL
+for (j in c("N","H","D","E")){#for index
+for (i in unique(div[,summit])){#for summit
+  d <- aov(value~period,data=div_t[summit==`i`&index==`j`])
+  tuk <- HSD.test(d,'period')
+cls <- as.data.table(cbind(data.table(summit=i,index=j,year=rownames(tuk$groups),tuk$group)))
+c_r <- rbind(c_r,cls)
+}
+}
+div_avg <- div_t[,.(avg=mean(value),sd=sd(value)),by=.(summit,period,index)]
+div_avg <- div_avg[c_r,on=.(summit=summit,index=index,period=year)]
+fwrite(div_avg,paste0(path,"result/diversity_index.csv"))
+############繪圖
+div_avg[,summit:=factor(summit,levels=lv)]
+ind_name <- c("Species number","Shannon index","Simpson index","evenness")
+ind <- c("N","H","D","E")
+
+bar_w <- 0.8
+for (i in 1:4){
+  ggplot(div_avg[index==ind[i]],aes(x=summit,y=avg,fill=period))+
+    geom_col(width=bar_w,position=position_dodge(),alpha=0.8)+
+    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), 
+                   position = position_dodge(width =bar_w),width = 0.2)+
+    theme_bw()+
+    geom_text(aes(label=groups, group=period),
+            position=position_dodge(width=bar_w),vjust=-4)+
+  ylim(c(0,max(div_avg[index==ind[i],avg+sd])*1.3))+
+  labs(y=ind_name[i],x="Summit",fill="MC",size=10)
+  ggsave(paste0(path,"/result/plot/div_index_",ind[i],".jpeg"),width=5,height=3,dpi=600)
+  }
+
+
+```
+
+
+```{r echo=FALSE}
+
+```
+### Step 2. 多變量分析
+嘗試使用ca檢視植群組成
+使用資料
+sp_p1:轉置後"山峰樣區+時期~物種組成表"
+
+嘗試使用pca檢視植群組成
+```{r}
+sp_p1[!grep("ZNF",pcode)]
+rda1 <- rda(sp_p1[,4:ncol(sp_p1)])
+
+rda_r <- cbind(sp_p1[,1:3],rda1$CA$u)
+rda_r[,summit:=gsub('-[A-Z].*',"",pcode)][,dir_alt:=gsub('^[A-Z]{1,3}-',"",pcode)]
+rda_r[,summit_per:=paste0(summit,"_",period)]
+rda_r[,summit:=factor(summit, levels = lv)]
+ggplot(rda_r,aes(x=PC1,y=PC2,color=summit,label = pcode))+
+  geom_point()+
+  facet_grid(period~.)+
+  geom_mark_ellipse(aes(fill = summit,label = NULL))+
+  ylim(c(-0.2,0.4))
+ggsave(paste0(path,"result/plot/PCA_Period.jpeg"),width = 6,height = 4, dpi=600)
+
+sum(rda1$CA$eig[1:2])/rda1$tot.chi
+
+##排除ZNF
+sp_p1_ex_z <- sp_p1[!grep(c("ZNF"),pcode)]
+rda1 <- rda(sp_p1_ex_z[,4:ncol(sp_p1)])
+
+rda_r <- cbind(sp_p1_ex_z[,1:3],rda1$CA$u)
+rda_r[,summit:=gsub('-[A-Z].*',"",pcode)][,dir_alt:=gsub('^[A-Z]{1,3}-',"",pcode)]
+rda_r[,summit_per:=paste0(summit,"_",period)]
+rda_r[,summit:=factor(summit, levels = lv)]
+ggplot(rda_r,aes(x=PC1,y=PC2,color=summit,label = pcode))+
+  geom_point()+
+  facet_grid(period~.)+
+  geom_mark_ellipse(aes(fill = summit,label = NULL))+
+  ylim(c(-0.4,0.4))
+ggsave(paste0(path,"result/plot/PCA_Period_ex_znf.jpeg"),width = 6,height = 4, dpi=600)
+
+sum(rda1$CA$eig[1:2])/rda1$tot.chi
+```
+### Step 3. 物種氣候區位以及覆蓋增減關係
+**核心概念:時間** 
+在氣候變化的條件下，各山峰物種的區位組成是如何變化?覆蓋增減的物種屬於何種類型?
+Step 3.1. 基礎資料載入並繪製密度圖
+所需資料：已求算的bio_niche資料
+基礎樣區資料：
+r_sp:p5mP10m樣區資料
+r_en:p5mp10m樣區環境資料
+
+```{r}
+bio_nich <- fread(paste0(path,'bio_niche_HQM_NAH_DAS_SYU_2008_2021.csv'))
+r_sp <-fread(paste0(path,'2009_2021_HQM_NAH_p5p10_BBq.csv'))
+r_en <-fread(paste0(path,'2009_2021_plant_total_cover.csv')) 
+colnames(r_en)
+r_sp[year %in% 2009:2010,period:='MC1'][
+  year %in% 2014:2015,period:='MC2'][
+  year %in% 2020:2021,period:="MC3"
+  ]
+r_sp <- r_sp[code!="#N/A"]
+r_sp <- r_sp[r_en,on=.(region=reg,summit=summit,
+                       dir=dir,dir_alt=dir_alt,
+                       year=year,period=period)]
+r_sp <- r_sp[code!="SP139"]#傅式唐松草僅一筆資料，需要再確認
+r_sp_frq <- r_sp[,.(frq=1),by=.(region,summit,code,Species,period)]
+r_sp_frq <- r_sp_frq[bio_nich,on=.(code=code)]
+r_sp_frq <- r_sp_frq[!is.na(period)]
+r_sp_frq[,summit:=factor(summit,levels = lv)]
+###繪製氣候區位密度圖
+v <- c("bio_12_3","bio_1_3")
+mark <- c("Precipitation niche (mm)","Temperature niche (°C)")
+for (i in 1:2){
+ggplot(r_sp_frq, aes(x = summit, y = get(v[i]),fill=summit,color=summit)) + #get是必要的
+  stat_halfeye(
+    adjust = .5, 
+    width = .5, 
+    .width = 0,
+    alpha = .5,
+    justification = -.2, 
+    point_colour = NA
+  ) + 
+  geom_boxplot(
+    width = .05, 
+    outlier.shape = NA,
+     alpha = .5
+  ) +
+  ## add justified jitter from the {gghalves} package
+  geom_half_point(
+    ## draw jitter on the left
+    side = "l", 
+    ## control range of jitter
+    range_scale = .4, 
+    ## add some transparency
+    alpha = .5
+  )+
+  labs(x="Summit",y=mark[i])+
+  theme(legend.position = "none")+
+  facet_grid(period~.)
+ggsave(paste0(path,"result/plot/",v[i],"_niche_distribution.jpeg"),width=6,height=6.5,dpi=600)
+}
+##r_data: 統整三個時期各山峰樣區p5m_p10m的植物覆蓋相對值與絕對值
+##nich: 氣候區位bio_1(年均溫),bio_12(年降雨量),數字1-5為溫量指數,table中的code是GBIF下載之順序
+
+
+```
+step 3.2 計算物種區位的增減關係
+```{r}
+r_sp[,r_cov:=cover*plant_c/100]
+r_data <- dcast(r_sp,region+summit+Species+code~period,value.var = c('cover',"r_cov"),fun=sum)#r_data為不同時期之物種覆蓋度整理
+r_data[,dif_12:=r_cov_MC2-r_cov_MC1][,dif_23:=r_cov_MC3-r_cov_MC2]
+dif_nich <- r_data[bio_nich,on=.(code=code)]
+dif_nich[,summit:=factor(summit,levels=lv)]
+####標記減少與增加的物種
+dif_nich[dif_12>0,cls_12:="expansion"][dif_12<0,cls_12:="shrinking"][
+  dif_23>0,cls_23:="expansion"][dif_23<0,cls_23:="shrinking"]
+####
+fwrite(dif_nich,paste0(path,"result/cover_difference.csv"))
+####將數值都轉為正值
+dif_nich[dif_12<0,cov_12:=dif_12*(-1)][!dif_12<0,cov_12:=dif_12]
+
+dif_nich[dif_23<0,cov_23:=dif_23*(-1)][!dif_23<0,cov_23:=dif_23]
+####p1 p2
+ggplot(dif_nich[!cov_12==0],aes(x=bio_1_3,y=bio_12_3))+
+  geom_point(aes(color = cls_12, size = cov_12), alpha = 0.5,na.rm = TRUE)+
+  facet_wrap(region~summit,  ncol=3)+
+  labs(x="Temperature niche (°C)",
+       y="Precipitation niche (mm)",
+       color="Alter",size="CD")+
+  scale_size(breaks=seq(20,120,20))+
+  scale_color_discrete(direction=-1)+
+  theme_bw()
+ggsave(paste0(path,"result/plot/cover_diff_p1p2.jpeg"),width=8,height = 6,dpi=300)
+
+####p2 p3
+ggplot(dif_nich[!cov_23==0&!summit=="QSS"],aes(x=bio_1_3,y=bio_12_3))+
+  geom_point(aes(color = cls_23, size = cov_23), alpha = 0.5,na.rm = TRUE)+
+  facet_wrap(region~summit,  ncol=3)+
+  labs(x="Temperature niche (°C)",
+       y="Precipitation niche (mm)",
+       color="Alter",size="CD")+
+  scale_size(breaks=seq(20,120,20))+
+  scale_color_discrete(direction=-1)+
+  theme_bw()
+ggsave(paste0(path,"result/plot/cover_diff_p2p3.jpeg"),width=8,height = 6,dpi=300)
+```
+
